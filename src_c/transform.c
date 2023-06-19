@@ -125,7 +125,7 @@ newsurf_fromsurf(SDL_Surface *surf, int width, int height)
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return (SDL_Surface *)(RAISE(
-            PyExc_ValueError, "unsupported Surface bit depth for transform"));
+            PyExc_ValueError, "unsupported Surface bit depth for transform."));
 
     newsurf = SDL_CreateRGBSurfaceWithFormat(
         0, width, height, surf->format->BitsPerPixel, surf->format->format);
@@ -417,7 +417,7 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
     int stretch_result_num = 0;
 
     if (width < 0 || height < 0)
-        return RAISE(PyExc_ValueError, "Cannot scale to negative size");
+        return RAISE(PyExc_ValueError, "Cannot scale to a negative size.");
 
     src = pgSurface_AsSurface(srcobj);
 
@@ -453,7 +453,7 @@ scale_to(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int width,
     if (retsurf->w != width || retsurf->h != height) {
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Destination surface not the given width or height."));
+            "Destination surface is not the given width or height."));
     }
 
     /* Testing width and height of src and dest, because pygame supports
@@ -582,12 +582,12 @@ surf_scale2x(PyObject *self, PyObject *args, PyObject *kwargs)
 
     /* check to see if the size is twice as big. */
     if (newsurf->w != (surf->w * 2) || newsurf->h != (surf->h * 2))
-        return RAISE(PyExc_ValueError, "Destination surface not 2x bigger.");
+        return RAISE(PyExc_ValueError, "Destination surface is not 2x bigger.");
 
     /* check to see if the format of the surface is the same. */
     if (surf->format->BytesPerPixel != newsurf->format->BytesPerPixel)
         return RAISE(PyExc_ValueError,
-                     "Source and destination surfaces need the same format.");
+                     "Source and destination surfaces must be the same format.");
 
     SDL_LockSurface(newsurf);
     SDL_LockSurface(surf);
@@ -633,7 +633,7 @@ surf_rotate(PyObject *self, PyObject *args, PyObject *kwargs)
 
     if (surf->format->BytesPerPixel == 0 || surf->format->BytesPerPixel > 4)
         return RAISE(PyExc_ValueError,
-                     "unsupported Surface bit depth for transform");
+                     "unsupported Surface bit depth for transform.");
 
     if (!(fmod((double)angle, (double)90.0f))) {
         pgSurface_Lock(surfobj);
@@ -1404,7 +1404,7 @@ smoothscale_to(PyObject *self, pgSurfaceObject *srcobj,
     int bpp;
     if (width < 0 || height < 0)
         return (SDL_Surface *)(RAISE(PyExc_ValueError,
-                                     "Cannot scale to negative size"));
+                                     "Cannot scale to a negative size."));
 
     src = pgSurface_AsSurface(srcobj);
 
@@ -1412,7 +1412,7 @@ smoothscale_to(PyObject *self, pgSurfaceObject *srcobj,
     if (bpp < 3 || bpp > 4)
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Only 24-bit or 32-bit surfaces can be smoothly scaled"));
+            "Only 24-bit or 32-bit surfaces can be smoothly scale."));
 
     if (!dstobj) {
         retsurf = newsurf_fromsurf(src, width, height);
@@ -1425,12 +1425,12 @@ smoothscale_to(PyObject *self, pgSurfaceObject *srcobj,
     if (retsurf->w != width || retsurf->h != height)
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Destination surface not the given width or height."));
+            "Destination surface is not the given width or height."));
 
     if (((width * bpp + 3) >> 2) > retsurf->pitch)
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "SDL Error: destination surface pitch not 4-byte aligned."));
+            "SDL Error: destination surface pitch is not 4-byte aligned."));
 
     if (width && height) {
         SDL_LockSurface(retsurf);
@@ -1564,7 +1564,7 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
     else if (strcmp(type, "MMX") == 0) {
         if (!SDL_HasMMX()) {
             return RAISE(PyExc_ValueError,
-                         "MMX not supported on this machine");
+                         "MMX not supported on this machine.");
         }
         st->filter_type = "MMX";
         st->filter_shrink_X = filter_shrink_X_MMX;
@@ -1575,7 +1575,7 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
     else if (strcmp(type, "SSE") == 0) {
         if (!SDL_HasSSE()) {
             return RAISE(PyExc_ValueError,
-                         "SSE not supported on this machine");
+                         "SSE not supported on this machine.");
         }
         st->filter_type = "SSE";
         st->filter_shrink_X = filter_shrink_X_SSE;
@@ -1584,7 +1584,7 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
         st->filter_expand_Y = filter_expand_Y_SSE;
     }
     else {
-        return PyErr_Format(PyExc_ValueError, "Unknown backend type %s", type);
+        return PyErr_Format(PyExc_ValueError, "Unknown backend type %s.", type);
     }
     Py_RETURN_NONE;
 #else  /* Not an x86 processor */
@@ -1592,9 +1592,9 @@ surf_set_smoothscale_backend(PyObject *self, PyObject *args, PyObject *kwargs)
         if (strcmp(st->filter_type, "MMX") == 0 ||
             strcmp(st->filter_type, "SSE") == 0) {
             return PyErr_Format(PyExc_ValueError,
-                                "%s not supported on this machine", type);
+                                "%s not supported on this machine.", type);
         }
-        return PyErr_Format(PyExc_ValueError, "Unknown backend type %s", type);
+        return PyErr_Format(PyExc_ValueError, "Unknown backend type %s.", type);
     }
     Py_RETURN_NONE;
 #endif /* defined(SCALE_MMX_SUPPORT) */
@@ -2061,7 +2061,7 @@ grayscale(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
     if (src->format->BytesPerPixel != newsurf->format->BytesPerPixel) {
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Source and destination surfaces need the same format."));
+            "Source and destination surfaces must be the same format."));
     }
 
     int x, y;
@@ -2348,12 +2348,12 @@ surf_laplacian(PyObject *self, PyObject *args, PyObject *kwargs)
     /* check to see if the size is the correct size. */
     if (newsurf->w != (surf->w) || newsurf->h != (surf->h))
         return RAISE(PyExc_ValueError,
-                     "Destination surface not the same size.");
+                     "Destination surface must be the same size as source surface.");
 
     /* check to see if the format of the surface is the same. */
     if (surf->format->BytesPerPixel != newsurf->format->BytesPerPixel)
         return RAISE(PyExc_ValueError,
-                     "Source and destination surfaces need the same format.");
+                     "Source and destination surfaces must be the same format.");
 
     SDL_LockSurface(newsurf);
     SDL_LockSurface(surf);
@@ -2635,7 +2635,7 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
                 if (!newsurf) {
                     Py_XDECREF(obj);
                     ret = RAISE(PyExc_ValueError,
-                                "Could not create new surface.");
+                                "Could not create a new surface.");
                     an_error = 1;
                     break;
                 }
@@ -2647,7 +2647,7 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
             if (newsurf->w != (surf->w) || newsurf->h != (surf->h)) {
                 Py_XDECREF(obj);
                 ret = RAISE(PyExc_ValueError,
-                            "Destination surface not the same size.");
+                            "Destination surface must be the same size as source surface.");
                 an_error = 1;
                 break;
             }
@@ -2658,7 +2658,7 @@ surf_average_surfaces(PyObject *self, PyObject *args, PyObject *kwargs)
                 Py_XDECREF(obj);
                 ret = RAISE(
                     PyExc_ValueError,
-                    "Source and destination surfaces need the same format.");
+                    "Source and destination surfaces must be the same format.");
                 an_error = 1;
                 break;
             }
@@ -3184,13 +3184,13 @@ blur(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj, int radius,
 
     if ((retsurf->w) != (src->w) || (retsurf->h) != (src->h)) {
         return RAISE(PyExc_ValueError,
-                     "Destination surface not the same size.");
+                     "Destination surface must be the same size as source surface.");
     }
 
     if (src->format->BytesPerPixel != retsurf->format->BytesPerPixel) {
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Source and destination surfaces need the same format."));
+            "Source and destination surfaces must be the same format."));
     }
 
     if (radius > MIN(src->w, src->h)) {
@@ -3305,7 +3305,7 @@ invert(pgSurfaceObject *srcobj, pgSurfaceObject *dstobj)
     if (src->format->BytesPerPixel != newsurf->format->BytesPerPixel) {
         return (SDL_Surface *)(RAISE(
             PyExc_ValueError,
-            "Source and destination surfaces need the same format."));
+            "Source and destination surfaces must be the same format."));
     }
 
     int x, y;
